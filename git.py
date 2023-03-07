@@ -533,7 +533,7 @@ if __name__ == "__main__":
 	elif func == 'push':
 		git.push()
 	elif func == 'status':
-		print(git.status())
+		print(git._status())
 	elif func == 'commit':
 		if arg1 is not None:
 			git._commit(arg1)
