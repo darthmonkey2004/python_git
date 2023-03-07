@@ -487,7 +487,7 @@ if __name__ == "__main__":
 	path = None
 	import sys
 	try:
-		func = sys.arv[1]
+		func = sys.argv[1]
 	except Exception as e:
 		print(f"no argument provided ({e})! setting push...")
 		func = "push"
@@ -534,7 +534,8 @@ if __name__ == "__main__":
 	elif func == 'push':
 		git.push()
 	elif func == 'status':
-		print(git._status())
+		data = git._status()
+		print("\n".join(data.splitlines()))
 	elif func == 'commit':
 		if arg1 is not None:
 			git._commit(arg1)
