@@ -534,7 +534,7 @@ if __name__ == "__main__":
 	elif func == 'push':
 		git.push()
 	elif func == 'status':
-		data = git._status()
+		ret, data = git._status()
 		print("\n".join(data.splitlines()))
 	elif func == 'commit':
 		if arg1 is not None:
