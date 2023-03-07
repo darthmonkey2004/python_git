@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from pathlib import Path
 import subprocess
 import pexpect
@@ -24,6 +26,18 @@ Capabilities:
 
 token_store_file = os.path.join(os.path.expanduser("~"), 'git_token.txt')
 os.environ['GCM_PLAINTEXT_STORE_PATH'] = token_store_file
+
+
+def set_gitdir():
+	base_dir = os.getcwd()
+	path = None
+	com = f"ls -d python_np"
+	try:
+		path = subprocess.check_output(com, shell=True).decode().strip()
+	except Exception as e:
+		print(f"Error: {e}")
+	return os.path.join(base_dir, path)
+
 
 class git():
 	def __init__(self, path=None, email=None, name=None, token=None, init=False, url=None, store_type='local'):
@@ -69,7 +83,7 @@ class git():
 		self._set_config_plaintext()
 
 	def test_git(self):
-		if not _test_git():
+		if not self._test_git():
 			self._install_git()
 
 	def _test_git(self):
@@ -457,7 +471,7 @@ class git():
 			ret = self._add()
 			ret = self._commit(commit_message)
 			if not ret:
-				break
+				raise Exception(Exception, ret)
 			self.commit_needed = False
 			self.push_needed = True
 		if self.push_needed:
@@ -466,3 +480,61 @@ class git():
 		if not self._rm_token_file():
 			print(f"WARNING!!! COULD NOT DELETE TOKEN FILE AT \'{self.token_store_file}\'")
 		return True
+
+if __name__ == "__main__":
+	url = None
+	init = False
+	path = None
+	import sys
+	try:
+		func = sys.arv[1]
+	except:
+		func = "push"
+	funcs = ['add', 'push', 'status', 'new', 'commit']
+	if func not in funcs:
+		print(f"unknown function:{func}!")
+		exit()
+	try:
+		arg1 = sys.argv[2]
+	except:
+		arg1 = None
+	try:
+		arg2 = sys.argv[3]
+	except:
+		arg2 = None
+	if arg1 is not None:
+		if 'http' in arg1:
+			url = arg1
+		elif '-u' in arg1 or '--url' in arg1:
+			if arg2 is not None:
+				url = arg2
+			else:
+				url = input("Enter url:")
+		if os.path.exists(arg1):
+			path = arg1
+		elif '-p' in arg1 or '--path' in arg1:
+			if arg2 is not None:
+				path = arg2
+			else:
+				path = input("enter repo directory path:")
+		if '-i' in arg1 or '--init' in arg1:
+			init=True
+	else:
+		path = set_gitdir()
+	if url is not None:
+		git = git(url=url)
+	elif path is not None:
+		git = git(path=path)
+	elif init:
+		git = git(init=init)
+	if func == 'add':
+		git._add()
+	elif func == 'push':
+		git.push()
+	elif func == 'status':
+		print(git._status())
+	elif func == 'commit':
+		if arg1 is not None:
+			git._commit(arg1)
+		else:
+			git._commit()
