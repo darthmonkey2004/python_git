@@ -1,5 +1,9 @@
 # python_git
 
+To install, either run "pip3 install --user 'dist/python_git-1.0.tar.gz'" in a terminal window,
+or alternatively run 'python_git_install.sh' from the git repo directory.
+Copies library to /<user>/.local/lib, and git.py to /<user>/.local/bin. (You will need to add to path unless you install globally)
+
 """git python helper class - (python_np.utils.git)
 This is a python object intended to help with pushing updating a git repository via the command line.
 Capabilities:
