@@ -414,13 +414,17 @@ class git():
 			return False
 
 
-	def _push(self, token=None, email=None):
+	def _push(self, token=None, email=None, force=False):
 		if token is not None:
 			self.token = token
 		if email is not None:
 			self.email = email
 		os.chdir(self.path)
-		child = pexpect.spawn('/usr/bin/git push')
+		if force:
+			com = "/usr/bin/git push --force"
+		else:
+			com = "/usr/bin/git push"
+		child = pexpect.spawn(com)
 		time.sleep(2)
 		child.sendline(self.email)
 		time.sleep(2)
@@ -462,7 +466,7 @@ class git():
 			return True
 		
 
-	def push(self, commit_message=None):
+	def push(self, commit_message=None, force=False):
 		if not self._write_token_file():
 			print("Error! Aborting...")
 			return False
@@ -476,7 +480,19 @@ class git():
 			self.push_needed = True
 		if self.push_needed:
 			ret = self._push(self.token, self.email)
-			print(ret)
+			if '! [rejected]' in ret:
+				if not force:
+					print(ret)
+					yn = input("Remote repo has changes you don't have! Force update? (y/n)")
+					if yn == 'y':
+					ret = self._push(token=self.token, email=self.email, force=True)
+					print(ret)
+				else:
+					print("Remote repo has changes you don't have! Forcing update... (force=True)")
+					ret = self._push(token=self.token, email=self.email, force=True)
+					print(ret)
+			else:	
+				print(ret)
 		if not self._rm_token_file():
 			print(f"WARNING!!! COULD NOT DELETE TOKEN FILE AT \'{self.token_store_file}\'")
 		return True
