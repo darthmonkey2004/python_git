@@ -547,9 +547,11 @@ if __name__ == "__main__":
 		try:
 			ret = git.push()
 			print("ret:", ret)
+			ok = True
 		except Exception as e:
 			print("Couldn't push: ", e)
 			ret = str(e)
+			ok = False
 		if '! [rejected]' in str(ret):
 			ok = False
 		if not ok:
