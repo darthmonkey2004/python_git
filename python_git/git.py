@@ -9,7 +9,7 @@ import keyring
 import os
 import subprocess
 
-"""git python helper class - (python_np.utils.git)
+"""git python helper class - python_git:
 This is a python object intended to help with pushing updating a git repository via the command line.
 Capabilities:
 	1. uses keystore to securely store token long-term
@@ -31,11 +31,13 @@ os.environ['GCM_PLAINTEXT_STORE_PATH'] = token_store_file
 def set_gitdir():
 	base_dir = os.getcwd()
 	path = None
-	com = f"ls -d python_np"
+	com = f"ls -d *.git"
 	try:
 		path = subprocess.check_output(com, shell=True).decode().strip()
 	except Exception as e:
 		print(f"Error: {e}")
+	if path is None:
+		path = input("Enter path to repo:")
 	return os.path.join(base_dir, path)
 
 
@@ -485,6 +487,10 @@ class git():
 			print(f"WARNING!!! COULD NOT DELETE TOKEN FILE AT \'{self.token_store_file}\'")
 		return True
 
+
+	def _pull(self):
+		return subprocess.check_output(f"cd \"{self.path}\"; git pull", shell=True).decode().strip()
+
 if __name__ == "__main__":
 	url = None
 	init = False
@@ -495,7 +501,7 @@ if __name__ == "__main__":
 	except Exception as e:
 		print(f"no argument provided ({e})! setting push...")
 		func = "push"
-	funcs = ['add', 'push', 'status', 'new', 'commit']
+	funcs = ['pull', 'add', 'push', 'status', 'new', 'commit']
 	if func not in funcs:
 		print(f"unknown function:{func}!")
 		exit()
@@ -534,7 +540,9 @@ if __name__ == "__main__":
 	elif init:
 		git = git(init=init)
 	if func == 'add':
-		git._add()
+		print(git._add())
+	elif func == 'pull':
+		print(git._pull())
 	elif func == 'push':
 		try:
 			ret = git.push()
