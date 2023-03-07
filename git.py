@@ -45,7 +45,7 @@ class git():
 		if self.path is None:
 			txt = "Error! No repo found, provided, or init method given (clone, url, or init"
 			raise Exception(Exception, txt)
-		if name is not None
+		if name is not None:
 			self.name = name
 			self.url = f"https://github.com/{self.email}/{self.name}.git"
 		else:
@@ -68,6 +68,8 @@ class git():
 		self._set_config_plaintext()
 
 	def init_repo(self):
+		c = input("Opening browser. Create a new repo, then press enter to continue...")
+		self._browse_create_repo()
 		print("This function assumes you've already added a new repo on github!")
 		self.name = input("Enter repository name: (blank for None, you'll have to set this up later.)")
 		self.path = os.path.join(os.getcwd(), self.name)
@@ -390,7 +392,7 @@ class git():
 			self.token = token
 		if email is not None:
 			self.email = email
-		os.chdir('/home/monkey/python_np')
+		os.chdir(self.path)
 		child = pexpect.spawn('/usr/bin/git push')
 		time.sleep(2)
 		child.sendline(self.email)
@@ -398,6 +400,13 @@ class git():
 		child.sendline(self.token)
 		child.expect(pexpect.EOF, timeout=None)
 		return child.before.decode()
+
+
+	def _browse_create_repo(self):
+		url = "https://github.com/new"
+		ret = subprocess.check_output(f"xdg-open \"{url}\"", shell=True).decode().strip()
+		if ret != '':
+			print("Error openin browser:", ret)
 
 
 	def _write_token_file(self, token=None, fname=None):
@@ -432,7 +441,7 @@ class git():
 			return False
 		steps = self._get_push_steps()
 		if steps[0] == 'push' and len(steps) > 1:
-			steps = steps.reverse()
+			steps.reverse()
 		print("Steps needed:", steps)
 		for step in steps:
 			if step == 'add':
