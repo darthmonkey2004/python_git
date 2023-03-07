@@ -521,6 +521,7 @@ if __name__ == "__main__":
 			init=True
 	else:
 		path = set_gitdir()
+	print(f"func:{func}, path:{path}, url:{url}, init:{init}")
 	if url is not None:
 		git = git(url=url)
 	elif path is not None:
