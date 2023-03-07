@@ -550,7 +550,7 @@ if __name__ == "__main__":
 		except Exception as e:
 			print("Couldn't push: ", e)
 			ret = str(e)
-		if '! [rejected]' in ret:
+		if '! [rejected]' in str(ret):
 			ok = False
 		if not ok:
 			if not force:
