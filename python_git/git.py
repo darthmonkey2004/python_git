@@ -479,8 +479,15 @@ class git():
 			self.commit_needed = False
 			self.push_needed = True
 		if self.push_needed:
-			ret = self._push(self.token, self.email)
+			ok = True
+			try:
+				ret = self._push(self.token, self.email)
+			except Exception as e:
+				print("Couldn't push: ", e)
+				ret = str(e)
 			if '! [rejected]' in ret:
+				ok = False
+			if not ok:
 				if not force:
 					print(ret)
 					yn = input("Remote repo has changes you don't have! Force update? (y/n)")
