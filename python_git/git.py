@@ -479,27 +479,8 @@ class git():
 			self.commit_needed = False
 			self.push_needed = True
 		if self.push_needed:
-			ok = True
-			try:
-				ret = self._push(self.token, self.email)
-			except Exception as e:
-				print("Couldn't push: ", e)
-				ret = str(e)
-			if '! [rejected]' in ret:
-				ok = False
-			if not ok:
-				if not force:
-					print(ret)
-					yn = input("Remote repo has changes you don't have! Force update? (y/n)")
-					if yn == 'y':
-					ret = self._push(token=self.token, email=self.email, force=True)
-					print(ret)
-				else:
-					print("Remote repo has changes you don't have! Forcing update... (force=True)")
-					ret = self._push(token=self.token, email=self.email, force=True)
-					print(ret)
-			else:	
-				print(ret)
+			ret = self._push(self.token, self.email)
+			print(ret)
 		if not self._rm_token_file():
 			print(f"WARNING!!! COULD NOT DELETE TOKEN FILE AT \'{self.token_store_file}\'")
 		return True
@@ -555,7 +536,24 @@ if __name__ == "__main__":
 	if func == 'add':
 		git._add()
 	elif func == 'push':
-		git.push()
+		try:
+			git.push()
+		except Exception as e:
+			print("Couldn't push: ", e)
+			ret = str(e)
+		if '! [rejected]' in ret:
+			ok = False
+		if not ok:
+			if not force:
+				print(ret)
+				yn = input("Remote repo has changes you don't have! Force update? (y/n)")
+				if yn == 'y':
+					ret = git._push(token=git.token, email=git.email, force=True)
+					print(ret)
+			else:
+				print("Remote repo has changes you don't have! Forcing update... (force=True)")
+				ret = git._push(token=git.token, email=git.email, force=True)
+				print(ret)
 	elif func == 'status':
 		ret, data = git._status()
 		print("\n".join(data.splitlines()))
