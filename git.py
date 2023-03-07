@@ -488,7 +488,8 @@ if __name__ == "__main__":
 	import sys
 	try:
 		func = sys.arv[1]
-	except:
+	except Exception as e:
+		print(f"no argument provided ({e})! setting push...")
 		func = "push"
 	funcs = ['add', 'push', 'status', 'new', 'commit']
 	if func not in funcs:
