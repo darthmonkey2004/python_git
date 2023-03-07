@@ -27,6 +27,7 @@ os.environ['GCM_PLAINTEXT_STORE_PATH'] = token_store_file
 
 class git():
 	def __init__(self, path=None, email=None, name=None, token=None, init=False, url=None, store_type='local'):
+		self.test_git()
 		self.store_type = store_type
 		self.path = None
 		self.push_needed = False
@@ -66,6 +67,28 @@ class git():
 			self.token = token
 		self.token_store_file = token_store_file
 		self._set_config_plaintext()
+
+	def test_git(self):
+		if not _test_git():
+			self._install_git()
+
+	def _test_git(self):
+		hasgit = subprocess.check_output("which git", shell=True).decode().strip()
+		if hasgit == '':
+			print("Git not installed! Installing...")
+			return False
+		else:
+			return True
+
+
+	def _install_git(self):
+		com = f"sudo apt-get install -y git-all"
+		try:
+			subprocess.check_output(com, shell=True)
+			return True
+		except Exception as e:
+			print("Error installing git:", e)
+			return False
 
 	def init_repo(self):
 		c = input("Opening browser. Create a new repo, then press enter to continue...")
@@ -366,16 +389,6 @@ class git():
 			print(ret)
 			return False
 
-	def _get_push_steps(self):
-		self.status()
-		needs = []
-		if self.push_needed:
-			needs.append('push')
-		if self.commit_needed:
-			needs.append('commit')
-		if self.commit_needed and self.push_needed:
-			needs.append('add')
-		return needs
 
 	def _add(self):
 		com = f"cd \"{self.path}\"; git add ."
@@ -439,22 +452,17 @@ class git():
 		if not self._write_token_file():
 			print("Error! Aborting...")
 			return False
-		steps = self._get_push_steps()
-		if steps[0] == 'push' and len(steps) > 1:
-			steps.reverse()
-		print("Steps needed:", steps)
-		for step in steps:
-			if step == 'add':
-				ret = self._add()
-				if not ret:
-					break
-			elif step == 'commit':
-				ret = self._commit(commit_message)
-				if not ret:
-					break
-			elif step == 'push':
-				ret = self._push(self.token, self.email)
-				print(ret)
+		self.status()
+		if self.commit_needed:
+			ret = self._add()
+			ret = self._commit(commit_message)
+			if not ret:
+				break
+			self.commit_needed = False
+			self.push_needed = True
+		if self.push_needed:
+			ret = self._push(self.token, self.email)
+			print(ret)
 		if not self._rm_token_file():
 			print(f"WARNING!!! COULD NOT DELETE TOKEN FILE AT \'{self.token_store_file}\'")
 		return True
