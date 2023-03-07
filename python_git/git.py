@@ -537,7 +537,8 @@ if __name__ == "__main__":
 		git._add()
 	elif func == 'push':
 		try:
-			git.push()
+			ret = git.push()
+			print("ret:", ret)
 		except Exception as e:
 			print("Couldn't push: ", e)
 			ret = str(e)
