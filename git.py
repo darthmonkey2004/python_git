@@ -45,6 +45,12 @@ class git():
 		if self.path is None:
 			txt = "Error! No repo found, provided, or init method given (clone, url, or init"
 			raise Exception(Exception, txt)
+		if name is not None
+			self.name = name
+			self.url = f"https://github.com/{self.email}/{self.name}.git"
+		else:
+			self.name = 'default'
+			self.url = None
 		valid, msg = self.is_repo(self.path)
 		if not valid:
 			raise Exception(Exception, msg)
@@ -75,6 +81,7 @@ class git():
 		if self.email is None:
 			self.email = self.set_email()
 			self.user = self.set_user()
+		self.url = f"https://github.com/{self.email}/{self.name}.git"
 		self._commit("First commit!")
 		com = f"cd \"{self.path}\"; git branch -M main; git remote add origin https://github.com/{self.email.split('@')[0]}/{self.name}.git"
 		try:
@@ -289,8 +296,6 @@ class git():
 	def is_repo(self, path=None, name=None):
 		if name is not None:
 			self.name = name
-		else:
-			self.name = os.path.splitext(os.path.basename(self.url))[0]
 		if path is not None:
 			self.path = path
 		ret, msg = self._status()
@@ -426,6 +431,8 @@ class git():
 			print("Error! Aborting...")
 			return False
 		steps = self._get_push_steps()
+		if steps[0] == 'push' and len(steps) > 1:
+			steps = steps.reverse()
 		print("Steps needed:", steps)
 		for step in steps:
 			if step == 'add':
